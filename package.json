@@ -1,0 +1,25 @@
+{
+  "name": "nodejs-express-api-ibsu-class-2025",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "test": "mocha ./tests/test.js --timeout 30000 --exit"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "chai": "^4.3.7",
+    "chai-http": "^4.4.0",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^16.5.0",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jsonwebtoken": "^9.0.2",
+    "mocha": "^10.2.0",
+    "mongoose": "^8.15.1",
+    "morgan": "~1.9.1",
+    "multer": "^2.0.0",
+    "pug": "2.0.0-beta11"
+  }
+}
