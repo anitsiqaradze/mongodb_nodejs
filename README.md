@@ -552,3 +552,128 @@ db.orders.find({
 
 
 
+# 1
+public class CustomerPaymentDto {
+    private String fullName;
+    private Double totalAmount;
+}
+
+
+
+
+    @Query("""
+           SELECT new com.example.dto.CustomerPaymentDto(c.fullName, SUM(p.amount))
+           FROM Payment p
+           JOIN p.customer c
+           GROUP BY c.id, c.fullName
+           HAVING SUM(p.amount) > 1000
+           ORDER BY SUM(p.amount) DESC
+           """)
+    List<CustomerPaymentDto> findCustomerPaymentTotals();
+
+
+
+# 2 
+
+public interface EmployeeDepartmentView {
+    String getFullName();
+    String getDepartmentName();
+}
+
+
+  @Query("""
+           SELECT e.fullName AS fullName, d.name AS departmentName
+           FROM Employee e
+           JOIN e.department d
+           """)
+    List<EmployeeDepartmentView> findEmployeeDepartmentViews();
+
+
+# 3
+
+  @Query("""
+           SELECT new com.example.dto.InvoiceDto(i.clientName, i.total)
+           FROM Invoice i
+           WHERE i.createdAt >= :startOfYear AND i.createdAt <= :endOfYear
+           ORDER BY i.total DESC
+           """)
+    Page<InvoiceDto> findInvoicesForYear(
+            @Param("startOfYear") LocalDate startOfYear,
+            @Param("endOfYear") LocalDate endOfYear,
+            Pageable pageable);
+
+
+# 4
+
+ @Query("SELECT d FROM Doctor d WHERE d.specialization LIKE CONCAT('%', :keyword, '%')")
+    List<Doctor> findBySpecializationContaining(@Param("keyword") String keyword);
+
+
+
+# 5
+Write a JPQL query that returns, per region: the region name, the number of orders, and the average order total.
+Include only regions that have more than 5 orders.
+Sort by average order total descending.
+
+ @Query("""
+           SELECT new com.example.dto.RegionStatsDto(o.region, COUNT(o), AVG(o.totalPrice))
+           FROM Order o
+           GROUP BY o.region
+           HAVING COUNT(o) > 5
+           ORDER BY AVG(o.totalPrice) DESC
+           """)
+
+
+# 6
+
+Create an interface projection named BookDetailView returning: book title, author full name, publisher name.
+Write a JPQL query using two JOINs.
+
+  @Query("""
+           SELECT b.title AS title, a.fullName AS authorName, p.name AS publisherName
+           FROM Book b
+           JOIN b.author a
+           JOIN b.publisher p
+           """)
+
+
+# 7
+Write a JPQL constructor query returning products whose price is between two parameters (minPrice, maxPrice) and whose stock is greater than 0.
+Sort by price ascending.
+@Query("""
+        SELECT new ProductDto(p.name, p.price, p.category)
+        FROM Product p
+        Where p.price BETWEEN :minPrice AND :maxPrice
+        AND p.stock > 0
+        ORDER BY p.price ASC
+        """)
+
+# 8 
+Write a JPQL query that returns all transactions from the last 30 days whose amount is greater than the overall average transaction amount (use a subquery).
+@Query("""
+    SELECT new TransactionDto(a.owner, t.amount, t.createdAt)
+    FROM Transaction t
+    JOIN t.account a
+    WHERE t.createdAt >= :since
+    AND t.amount > (SELECT AVG(t2.amount) FROM transaction t2)
+    ORDER BY t.amount DESC
+    )
+
+
+# 9
+Write a JPQL query that returns only active courses whose title contains a keyword (case-insensitive — hint: LOWER(...)).
+
+SELECT c FROM Course c
+WHERE c.active = true
+AND LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%))
+# 10
+Write a JPQL query using LEFT JOIN so that teams with zero players are still included (count = 0).
+Sort by player count descending, then by team name ascending.
+
+ @Query("""
+           SELECT new com.example.dto.TeamSizeDto(t.name, COUNT(p))
+           FROM Team t
+           LEFT JOIN t.players p
+           GROUP BY t.id, t.name
+           ORDER BY COUNT(p) DESC, t.name ASC
+           """) 
